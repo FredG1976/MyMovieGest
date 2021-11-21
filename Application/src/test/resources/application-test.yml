@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: MyList
+  profiles:
+    active: test
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: create-drop
+  datasource:
+    url: jdbc:postgresql://localhost:5432/MyListDB
+    username: postgres
+    password: myoK4N8qWbDL
+omdb:
+  url: https://www.omdbapi.com/
+  apikey: c8a9f5ba
+myapp:
+  url: http://localhost:8080/

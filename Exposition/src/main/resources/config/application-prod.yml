@@ -1,0 +1,5 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://mylistdb:5432/${POSTGRES_DB}
+    username: postgres
+    password: ${POSTGRES_PASSWORD:myoK4N8qWbDL}

@@ -1,0 +1,8 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/MyListDB
+    username: postgres
+    password: myoK4N8qWbDL
+
+
+

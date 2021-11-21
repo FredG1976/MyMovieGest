@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: MyList
+
+  profiles:
+    active: ${PROFILE_ACTIVE:local}
+
+  jpa:
+#    open-in-view: false
+    show-sql: true
+    hibernate:
+#      ddl-auto: create-drop
+#     ddl-auto: none
+     ddl-auto: update
+
+  #Properties for OAuth2
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: 8bb99644c3d870451a11
+            client-secret: 6b0d6aad1aba0838c0c982d369b50b276d6afd15
+  jackson:
+    serialization:
+      FAIL_ON_EMPTY_BEANS: false
+
+# Secret KEY for jwt
+jwt:
+  secret: mylistapplication
+
+#Properties for injection of data FROM OMDP www.omdbapi.com
+omdb:
+  url: https://www.omdbapi.com/
+  apikey: c8a9f5ba
+
+myapp:
+  url: http://localhost:8080/

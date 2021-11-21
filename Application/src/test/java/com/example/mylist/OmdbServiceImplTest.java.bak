@@ -1,0 +1,197 @@
+package com.example.mylist;
+
+import com.example.mylist.domain.media.Media;
+import com.example.mylist.domain.usermylist.UserMl;
+import com.example.mylist.infrastructure.MediaRepository;
+import com.mashape.unirest.http.exceptions.UnirestException;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+
+@RunWith(MockitoJUnitRunner.class)
+public class OmdbServiceImplTest {
+    @Mock
+    MediaRepository mediaRepositoryMock;
+
+    @Mock
+    OmdbService omdbServiceMock;
+
+    @InjectMocks
+    MediaService mediaServiceMock = new MediaServiceImpl();
+
+    @InjectMocks
+    UserMediaService userMediaServiceMock = new UserMediaServiceImpl();
+
+    @InjectMocks
+    OmdbService omdbServiceInjectMock = new OmdbServiceImpl();
+
+    private List<Media> mediaListMock;
+
+    private UserMl userMlMock;
+
+    @Value("${spring.application.name}")
+    private String appName;
+
+    private Media media1;
+    private Media media2;
+    private Media media3;
+
+    @Before
+    public void setUp() {
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+        mediaListMock=new ArrayList<Media>();
+
+        media1 = new Media();
+        media1.setId(111L);
+        media1.setImdbID("tt0000111");
+        media1.setTitle("Title media 1");
+
+        media2 =new Media();
+        media2.setId(222L);
+        media2.setImdbID("tt0000222");
+        media2.setTitle("Title media 2");
+        mediaListMock.add(media2);
+
+        media3 =new Media();
+        media3.setId(333L);
+        media3.setImdbID("tt0000333");
+        media3.setTitle("Title media 3");
+        mediaListMock.add(media3);
+
+        userMlMock = new UserMl();
+        userMlMock.setId(1L);
+        userMlMock.setLogin("UserMock");
+        userMlMock.setFullName("UserMockFullName");
+        userMlMock.setAdmin(false);
+        userMlMock.setPassword(passwordEncoder.encode("password"));
+    }
+
+    @Test
+    public void import_Media_From_External_API_Success_For_a_specific_user_by_userml() throws UnirestException, IOException {
+        //GIVEN
+        List<String> imdbIdList = new ArrayList<String>();
+        imdbIdList.add(media1.getImdbID());
+        imdbIdList.add(media2.getImdbID());
+        imdbIdList.add(media3.getImdbID());
+
+        //WHEN
+        // We mock the method omdbServiceMock \ importMediaUsingImdbIdFromOmdbAPI .
+        Mockito.when(omdbServiceMock.importMediaUsingImdbIdFromOmdbAPI(media1.getImdbID(),userMlMock)).thenReturn(imdbIdList);
+        omdbServiceMock.importMediaUsingImdbIdFromOmdbAPI(media1.getImdbID(),userMlMock);
+
+        Mockito.when(mediaRepositoryMock.findByImdbID(media1.getImdbID())).thenReturn(Optional.of(media1));
+        Optional<Media> retrieveMediaOptional = mediaServiceMock.findByImdbID(media1.getImdbID());
+
+        //Then
+        String retrieveMediaTitle = retrieveMediaOptional.get().getTitle();
+        assertThat(retrieveMediaTitle).isEqualTo(media1.getTitle());
+    }
+
+    @Test
+    public void import_Media_From_External_API_Success_For_a_specific_user_by_usermlID() throws UnirestException, IOException {
+        //GIVEN
+        List<String> imdbIdList = new ArrayList<String>();
+        imdbIdList.add(media1.getImdbID());
+        imdbIdList.add(media2.getImdbID());
+        imdbIdList.add(media3.getImdbID());
+
+        //WHEN
+        // We mock the method omdbServiceMock \ importMediaUsingImdbIdFromOmdbAPI .
+        Mockito.when(omdbServiceMock.importMediaUsingImdbIdFromOmdbAPI(media1.getImdbID(),userMlMock.getId())).thenReturn(imdbIdList);
+        omdbServiceMock.importMediaUsingImdbIdFromOmdbAPI(media1.getImdbID(),userMlMock.getId());
+
+        Mockito.when(mediaRepositoryMock.findByImdbID(media1.getImdbID())).thenReturn(Optional.of(media1));
+        Optional<Media> retrieveMediaOptional = mediaServiceMock.findByImdbID(media1.getImdbID());
+
+        //Then
+        String retrieveMediaTitle = retrieveMediaOptional.get().getTitle();
+        assertThat(retrieveMediaTitle).isEqualTo(media1.getTitle());
+    }
+
+    @Test
+    public void import_Media_From_External_API_Success_Return_Media() throws UnirestException, IOException {
+        //GIVEN
+        List<String> imdbIdList = new ArrayList<String>();
+        imdbIdList.add("tt000000");
+        imdbIdList.add("tt000001");
+
+        //WHEN
+        // We mock the method omdbServiceMock \ importMediaUsingImdbIdFromOmdbAPI .
+//        Mockito.doNothing().when(omdbServiceMock).importMediaUsingImdbIdFromOmdbAPI(mediaMock.getImdbID());
+        Mockito.when(omdbServiceMock.importMediaUsingImdbIdFromOmdbAPI(media1.getImdbID())).thenReturn(imdbIdList);
+        omdbServiceMock.importMediaUsingImdbIdFromOmdbAPI(media1.getImdbID());
+
+        Mockito.when(mediaRepositoryMock.findByImdbID(media1.getImdbID())).thenReturn(Optional.of(media1));
+        Optional<Media> retrieveMediaOptional = mediaServiceMock.findByImdbID(media1.getImdbID());
+
+        //Then
+        String retrieveMediaTitle = retrieveMediaOptional.get().getTitle();
+        assertThat(retrieveMediaTitle).isEqualTo(media1.getTitle());
+    }
+
+    @Test
+    public void import_Media_From_External_API_Success_Return_Null() throws UnirestException, IOException {
+        //GIVEN
+        List<String> imdbIdList = new ArrayList<String>();
+        imdbIdList.add("tt000000");
+        imdbIdList.add("tt000001");
+
+        //WHEN
+        // We mock the method omdbServiceMock \ importMediaUsingImdbIdFromOmdbAPI .
+//        Mockito.doNothing().when(omdbServiceMock).importMediaUsingImdbIdFromOmdbAPI(mediaMock.getImdbID());
+        Mockito.when(omdbServiceMock.importMediaUsingImdbIdFromOmdbAPI(media1.getImdbID())).thenReturn(imdbIdList);
+        List<String> testList = omdbServiceMock.importMediaUsingImdbIdFromOmdbAPI(media1.getImdbID());
+        omdbServiceMock.importMediaUsingImdbIdFromOmdbAPI(media1.getImdbID());
+
+        Mockito.when(mediaRepositoryMock.findByImdbID(media1.getImdbID())).thenReturn(Optional.of(new Media()));
+        Optional<Media> retrieveMediaOptional = mediaServiceMock.findByImdbID(media1.getImdbID());
+
+        //Then
+        String retrieveMediaTitle = retrieveMediaOptional.get().getTitle();
+        assertThat(retrieveMediaTitle).isNull();
+    }
+
+    @Test
+    public void search_Title_On_Omdb_API_Return_List_Of_Media(){
+        //Given
+        String searchText = "kirikou";
+
+        //When
+        Mockito.when(omdbServiceMock.searchMediaByNameFromOmdbAPI(searchText)).thenReturn(mediaListMock);
+        List<Media> retrieveMediaList = (List<Media>) omdbServiceMock.searchMediaByNameFromOmdbAPI(searchText);
+
+        //Then
+        assertThat(retrieveMediaList).isNotNull();
+        assertThat(retrieveMediaList.size()).isEqualTo(mediaListMock.size());
+    }
+
+    @Test
+    public void search_Title_On_Omdb_API_Return_0(){
+        //Given
+        String searchText = "kirikou";
+
+        //When
+        Mockito.when(omdbServiceMock.searchMediaByNameFromOmdbAPI(searchText)).thenReturn(new ArrayList<Media>());
+        List<Media> retrieveMediaList = (List<Media>) omdbServiceMock.searchMediaByNameFromOmdbAPI(searchText);
+
+        //Then
+        assertThat(retrieveMediaList).isEmpty();
+        assertThat(retrieveMediaList.size()).isEqualTo(0);
+    }
+}
